@@ -7,6 +7,15 @@
 
 using namespace Qt;
 
+void WriteFileOnce(QFile& data, QString str)
+{
+    QTextStream out(&data);
+    // Pasar datos el string del text stream para el stream de salida del archivo. Linkeo de string del codigo al archivo.
+    out << str;
+    // Cerramos la sesion del archivo de escritura.
+    data.close();
+}
+
 void WriteToFile(void)
 {
     QString str;
@@ -27,19 +36,30 @@ void WriteToFile(void)
     /* Pedir el nombre del archivo al usuario.*/
     QString fileName;
     fileName = qcin.readLine();
-
     /* Use case de crear un nuevo archivo y llenarlo con datos*/
     QFile data(fileName);
-    data.open(QIODevice::WriteOnly);
-    QTextStream out(&data);
-    // Pasar datos el string del text stream para el stream de salida del archivo. Linkeo de string del codigo al archivo.
-    out << str;
-    // Cerramos la sesion del archivo de escritura.
-    data.close();
+    /* Checamos si el archivo ya existe antes de tratar de escribirlo, si existe entonces podemos escribir*/
+    if(data.exists() == true)
+    {
+        if(false != data.open(QIODeviceBase::NewOnly))
+        {
+            WriteFileOnce(data, str);
+        }
+    }
+    /* Si el archivo no existe, podemos crear uno. */
+    else
+    {
+        if(false != data.open(QIODevice::WriteOnly))
+        {
+            WriteFileOnce(data, str);
+        }
+    }
 }
 
 /* Modifica el ajecrcici 1.11 para tomar el fileName del usuario antes de escribir o leer.
    Necesitas usar la funcion de .c_str() para convertir el string de una manera aceptable para la operacion open()*/
+/* Modificalo para que se asegure que el archivo especificado por el usuario no exista, o si esta bien reemplazarlos,
+antes de abrirlo.*/
 int main()
 {
     WriteToFile();
